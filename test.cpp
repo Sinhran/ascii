@@ -16,21 +16,71 @@ int main() {
   }
 
   if (testfile.is_open()) {
-   std::cout << "File opened successfully." << std::endl;
     // Read the file byte by byte
-    unsigned char byte;
-    while (testfile.read(reinterpret_cast<char*>(&byte), sizeof(byte))) {
-      // Print each byte as hex value with leading zero
-      if (count == 1) {
-        std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte) << " ";
-        count = 0;
-      } else {
-        std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte);
-        count++;
-      }
+    // Store the filesize in size variable
+    char byte;
+    long size = 0;
+    while (testfile.read((&byte), sizeof(byte))) {
+      size++;
     }
-    std::cout << std::endl;
+    // Reset EOF flag
+    testfile.clear();
+    // Move the file pointer to the beginning of file
+    testfile.seekg(0, std::ios::beg);
+
+    // Hmmmmmm
+    // Now that we know the file size, I guess it's
+    // a good time to read it into memory
+    char *buffer = new char[size];
+
+    testfile.read(buffer, size);
+
+    if (testfile) {
+      std::cout << "All characters read successfully." << std::endl;
+    } else {
+      std::cout << "Error: Only " << testfile.gcount() << " characters could be read." << std::endl;
+    }
+
+    // So buffer is the same size as the file now
+    // So to access the image data, we need to move
+    // 54 bytes
+    // How do we do that?
+    // Let's start with making a variable to hold 54
+    // bytes of data
+    const uint headersize = 54;
+    // char *headers = new char[headersize]; // No need of this yet
+    // Creating a pointer that points to the buffer
+    char *ptr = buffer;
+    // Checking if it worked to keep sanity
+    // static_cast<void*>(buffer) to cast the
+    // value at the memory address to void type
+    // so that it shows the memory address and
+    // not random garbage
+    std::cout << static_cast<void*>(buffer) << " " << static_cast<void*>(ptr) << std::endl;
+    std::cout << static_cast<void*>(ptr+54) << std::endl;
+    // Now we are going to make a variable for output
+    // file. And then open the file and dump the headers.
+    std::fstream testout;
+    testout.open("testout.bmp", std::ios::out | std::ios::binary);
+    if (testout.fail()) {
+        std::cerr << "Error opening file: " << strerror(errno) << std::endl;
+      return 2;
+    }
+    if (testout.is_open()) {
+      // Let's create a loop that iterates while
+      // ptr < (ptr+54) and copy byte by byte from
+      // buffer into the output file
+      for (int i = 0; i < headersize; ++i) {
+        char byte = *(ptr + i);
+        testout << byte;
+      }
+
+      std::cout << size << std::endl;
+      testout.close();
+    }
     testfile.close();
+    // delete[] headers;
+    delete[] buffer;
   } else {
     std::cout << "Unable to open file." << std::endl;
     return 1;
