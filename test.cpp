@@ -75,6 +75,10 @@ int main() {
         testout << byte;
       }
 
+      for (int i = (headersize); i < size; ++i) {
+        char byte = *(ptr + i);
+        testout << byte;
+      }
       std::cout << size << std::endl;
       testout.close();
     }
