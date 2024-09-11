@@ -1,7 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <cstdint>
 
+uint16_t checksize(std::fstream &file);
 int main() {
   // Variable to store file
   std::fstream testfile;
@@ -16,24 +18,13 @@ int main() {
   }
 
   if (testfile.is_open()) {
-    // Read the file byte by byte
-    // Store the filesize in size variable
-    char byte;
-    long size = 0;
-    while (testfile.read((&byte), sizeof(byte))) {
-      size++;
-    }
-    // Reset EOF flag
-    testfile.clear();
-    // Move the file pointer to the beginning of file
-    testfile.seekg(0, std::ios::beg);
-
+    uint16_t sizeaz = checksize(testfile);
     // Hmmmmmm
     // Now that we know the file size, I guess it's
     // a good time to read it into memory
-    char *buffer = new char[size];
+    char *buffer = new char[sizeaz];
 
-    testfile.read(buffer, size);
+    testfile.read(buffer, sizeaz);
 
     if (testfile) {
       std::cout << "All characters read successfully." << std::endl;
@@ -75,11 +66,11 @@ int main() {
         testout << byte;
       }
 
-      for (int i = (headersize); i < size; ++i) {
+      for (int i = (headersize); i < sizeaz; ++i) {
         char byte = *(ptr + i);
         testout << byte;
       }
-      std::cout << size << std::endl;
+      std::cout << sizeaz << std::endl;
       testout.close();
     }
     testfile.close();
@@ -90,4 +81,19 @@ int main() {
     return 1;
   }
   return 0;
+}
+
+uint16_t checksize(std::fstream &file) {
+  // Read the file byte by byte
+  // Store the filesize in size variable
+  uint16_t size = 0;
+  char byte;
+  while (file.read((&byte), sizeof(byte))) {
+    size++;
+  }
+  // Reset EOF flag
+  file.clear();
+  // Move the file pointer to the beginning of file
+  file.seekg(0, std::ios::beg);
+  return size;
 }
