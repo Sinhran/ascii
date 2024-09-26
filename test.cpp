@@ -17,6 +17,30 @@ int main() {
       std::cerr << "Error opening file: " << strerror(errno) << std::endl;
   }
 
+    const uint headersize = 54;
+    struct bith {
+      int bmdib;
+      int bmsize;
+      int reser;
+      int juice;
+    };
+
+    struct bitdibh {
+      int bitdibhsize;
+      int bwidth;
+      int bheight;
+      int bcolorplanes;
+      int bcolordepth;
+      int bcomp;
+      int bimgsize;
+      int bhpres;
+      int bvpres;
+      int bcolorn;
+      int bcolornimp;
+    };
+
+    bith bith;
+
   if (testfile.is_open()) {
     uint16_t sizeaz = checksize(testfile);
     // Hmmmmmm
@@ -38,7 +62,6 @@ int main() {
     // How do we do that?
     // Let's start with making a variable to hold 54
     // bytes of data
-    const uint headersize = 54;
     // char *headers = new char[headersize]; // No need of this yet
     // Creating a pointer that points to the buffer
     char *ptr = buffer;
